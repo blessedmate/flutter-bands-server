@@ -13,14 +13,28 @@ bands.addBand(new Band("Rise Against"));
 io.on("connection", (client) => {
   console.log("Client connected");
 
+  // Sends the list of bands to a clients
   client.emit("active-bands", bands.getBands());
 
   client.on("disconnect", () => {
     console.log("Client disconnected");
   });
 
-  client.on("vote-band", (payload) => {
-    bands.voteBand(payload.id);
+  // Listens to the action: Vote for a band
+  client.on("vote-band", (data) => {
+    bands.voteBand(data.id);
+    io.emit("active-bands", bands.getBands());
+  });
+
+  // Listens to the action: Add a new band
+  client.on("add-band", (data) => {
+    bands.addBand(new Band(data.name));
+    io.emit("active-bands", bands.getBands());
+  });
+
+  // Listens to the action: Delete a band
+  client.on("delete-band", (data) => {
+    bands.deleteBand(data.id);
     io.emit("active-bands", bands.getBands());
   });
 
